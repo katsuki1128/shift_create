@@ -16,9 +16,11 @@ port = os.getenv("DB_PORT")
 dbname = os.getenv("DB_DATABASE")
 
 # それらを結合して DATABASE_URL を作成
-# database_url = f"postgresql://{username}:{password}@{host}:{port}/{dbname}"
-database_url = os.getenv("DATABASE_URL")
+database_url = f"postgresql://{username}:{password}@{host}:{port}/{dbname}"
+# database_url = os.getenv("DATABASE_URL")
 app = Flask(__name__)
+
+# print("Database URL:", os.getenv("DATABASE_URL"))
 
 # HerokuのPostgreSQLデータベースURLを設定（環境変数を使用して安全に取得可能）
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
