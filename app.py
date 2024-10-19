@@ -3,17 +3,17 @@ import os
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # .envファイルの環境変数をロード
-# load_dotenv()
+load_dotenv()
 
 # 環境変数からそれぞれの要素を取得
-# username = os.getenv("DB_USERNAME")
-# password = os.getenv("DB_PASSWORD")
-# host = os.getenv("DB_HOST")
-# port = os.getenv("DB_PORT")
-# dbname = os.getenv("DB_DATABASE")
+username = os.getenv("DB_USERNAME")
+password = os.getenv("DB_PASSWORD")
+host = os.getenv("DB_HOST")
+port = os.getenv("DB_PORT")
+dbname = os.getenv("DB_DATABASE")
 
 # それらを結合して DATABASE_URL を作成
 # database_url = f"postgresql://{username}:{password}@{host}:{port}/{dbname}"
