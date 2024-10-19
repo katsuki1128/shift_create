@@ -210,3 +210,37 @@ git commit -m "github"
 git push origin main
 heroku open
 ```
+
+# データベースの移行
+
+## 1. データベースのバックアップと移行
+
+### 1.1 ローカルデータベースのダンプを作成
+ローカルのPostgreSQLデータベースのデータをダンプファイルとしてエクスポートします。通常のシェルで以下のコマンドを使います。
+```zsh
+pg_dump -U postgres -h localhost shiftmanagement > local_dump.sql
+```
+
+データベース情報
+```
+username:postgres
+database_name:shiftmanagement
+host:localhost
+パスワード：rexzud-vidhyh-4hubqE
+```
+
+### 1.2 Herokuデータベースに接続
+
+```zsh
+heroku pg:psql --app immense-temple-11012
+```
+
+### 1.3 ダンプファイルをHerokuにインポート
+```zsh
+PGPASSWORD=p78671d535c89abce8f2804959a175f93e6872b26e0a545a7c79b9fa0aa92f6a7 psql -U ucasi6rtsmhet3 -h c97r84s7psuajm.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com -d ddp7ed2g30c2e2 < local_dump.sql
+```
+
+## 2. アプリのファイル構成を調整
+```zsh
+heroku config:set DB_USERNAME=ucasi6rtsmhet3 DB_PASSWORD=p78671d535c89abce8f2804959a175f93e6872b26e0a545a7c79b9fa0aa92f6a7 DB_HOST=c97r84s7psuajm.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com DB_PORT=5432 DB_DATABASE=ddp7ed2g30c2e2 --app immense-temple-11012
+```
