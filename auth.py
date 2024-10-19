@@ -1,4 +1,13 @@
-from flask import Blueprint, request, session, jsonify
+# auth.py
+from flask import (
+    Blueprint,
+    request,
+    session,
+    jsonify,
+    render_template,
+    redirect,
+    url_for,
+)
 from models import Employee
 
 auth = Blueprint("auth", __name__)  # FlaskのBlueprintを使用して、認証関連の機能を分ける
@@ -13,6 +22,12 @@ def load_users():
     return users
 
 
+# ログイン画面を表示するルート
+@auth.route("/login", methods=["GET"])
+def login():
+    return render_template("login.html")
+
+
 # ログイン処理
 @auth.route("/login", methods=["POST"])
 def login_post():
@@ -21,7 +36,6 @@ def login_post():
     password = data.get("password")
 
     users = load_users()
-    print(users)
     if username in users and users[username] == password:
         session["username"] = username  # セッションにユーザー情報を保存
         return jsonify({"success": True})
@@ -30,3 +44,10 @@ def login_post():
             jsonify({"success": False, "message": "Invalid username or password"}),
             401,
         )
+
+
+# ログアウト処理
+@auth.route("/logout")
+def logout():
+    session.pop("username", None)  # セッションからユーザーを削除
+    return redirect(url_for("auth.login"))
