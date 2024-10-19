@@ -36,11 +36,22 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
 
 
+# Employeeモデルを定義
+class Employee(db.Model):
+    __tablename__ = "employees"
+    employee_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), nullable=False)
+    full_name = db.Column(db.String(50), nullable=False)
+    max_consecutive_days = db.Column(db.Integer, nullable=False)
+    max_days_per_week = db.Column(db.Integer, nullable=False)
+
+
 # ルートURLでユーザーデータを表示
 @app.route("/")
 def index():
     users = User.query.all()
-    return render_template("index.html", users=users)
+    employees = Employee.query.all()  # employeesテーブルからデータを取得
+    return render_template("index.html", users=users, employees=employees)
 
 
 if __name__ == "__main__":
