@@ -41,6 +41,10 @@ const generateCalendar = (calendar, userShifts, selectedDates, removedDates, dat
         }
         // 日付セルの生成
         const cell = document.createElement("td");
+
+        // Tailwindでテキストサイズを大きくする
+        cell.classList.add("text-xl");  // テキストを大きくし、太字にする
+
         if (i >= firstDayIndex - 1 && currentDay <= daysInMonth) {
             const cellDay = currentDay;
             const dateStr = formatDateString(year, month, cellDay);
