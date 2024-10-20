@@ -1,0 +1,17 @@
+/* static/css/styles.css */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 4px;
+}
+
+th {
+    background-color: #f2f2f2;
+}

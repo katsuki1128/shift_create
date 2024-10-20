@@ -5,14 +5,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Page</title>
+    <title>従業員ページ</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center mb-6">ようこそ {{ username }}</h1>
+<body class="bg-gray-100 h-screen flex justify-center">
 
+    <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-md">
+        <div class="flex justify-center mb-4">
+            <input type="month" id="shift-month" name="shift_month" required>
+        </div>
         <div class="container">
             <div id="calendar-container">
                 <form id="shift-form">
@@ -50,7 +53,7 @@
                 <ul id="shift-legend"></ul>
             </div>
 
-            <input type="month" id="shift-month" name="shift_month" required>
+
         </div>
 
 

@@ -1,24 +1,11 @@
 // static/js/calendar.js
 
 // import { shiftTypes } from './shifts.js';
+import { getCalendarInfoFromCurrentMonth } from './utility.js';
 import { currentMonth, userShifts, senjuShiftTypes } from './main.js';
 
 const formatDateString = (year, month, day) => {
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-};
-
-// currentMonthから年、月、月の日数、firstDayIndex、totalCellsを取得する関数
-const getCalendarInfoFromCurrentMonth = () => {
-    const [year, month] = currentMonth.split("-").map(Number);
-    const daysInMonth = new Date(year, month, 0).getDate(); // 月は0ベースなのでそのまま使用
-
-    // 月の初日の曜日を取得 (month - 1 は 0ベースの月に対応させる)
-    const firstDayIndex = new Date(year, month - 1, 1).getDay();
-
-    // 必要なセル数（1ヶ月分の日数 + 最初の日のインデックス）を7で割って、7の倍数の行数を確保
-    const totalCells = Math.ceil((daysInMonth + firstDayIndex) / 7) * 7;
-
-    return { year, month, daysInMonth, firstDayIndex, totalCells };
 };
 
 
@@ -28,21 +15,22 @@ const generateHeaderRow = (calendar) => {
     daysOfWeek.forEach(day => {
         const th = document.createElement("th");
         th.textContent = day;
+        th.classList.add("text-xs");
         headerRow.appendChild(th);
     });
     calendar.appendChild(headerRow);
 };
 
 const generateCalendar = (calendar, userShifts, selectedDates, removedDates, date) => {
-    // Clear existing calendar
     while (calendar.firstChild) {
         calendar.removeChild(calendar.firstChild);
     }
 
     generateHeaderRow(calendar);
+    console.log("currentMonth", currentMonth)
 
     // グローバル関数から年、月、月の日数を取得
-    const { year, month, daysInMonth, firstDayIndex, totalCells } = getCalendarInfoFromCurrentMonth();
+    const { year, month, daysInMonth, firstDayIndex, totalCells } = getCalendarInfoFromCurrentMonth(currentMonth + 3);
 
     let currentDay = 1;
 
@@ -54,16 +42,9 @@ const generateCalendar = (calendar, userShifts, selectedDates, removedDates, dat
         // 日付セルの生成
         const cell = document.createElement("td");
         if (i >= firstDayIndex - 1 && currentDay <= daysInMonth) {
-            // console.log(i)
             const cellDay = currentDay;
-            // const dateStr = formatDateString(date.getFullYear(), date.getMonth() + 2, cellDay);
             const dateStr = formatDateString(year, month, cellDay);
-            // const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-            // console.log(dateStr);
             cell.textContent = currentDay;
-
-            // console.log(userShifts)
 
             // シフトの適用
             if (userShifts.has(dateStr)) {
@@ -88,10 +69,6 @@ const generateCalendar = (calendar, userShifts, selectedDates, removedDates, dat
                     // シングルクリックの処理をここに書く
                     if (userShifts.has(dateStr)) {
                         const currentShift = userShifts.get(dateStr);
-                        // console.log("currentShift", currentShift);
-
-                        // let nextShiftIndex = shiftTypeKeys.indexOf(currentShift.shift_name) + 1;
-                        // let nextShiftIndex = 8;
                         console.log(nextShiftIndex)
 
                         if (nextShiftIndex >= shiftTypeKeys.length) {

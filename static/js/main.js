@@ -1,5 +1,6 @@
 // static/js/main.js
 import { generateCalendar, generateShiftCalendar } from './calendar.js';
+import { setDefaultMonth, getCurrentMonth } from './utility.js';
 
 
 export let currentMonth = '';  // 現在選択されている「月」を保持する変数
@@ -189,20 +190,10 @@ document.getElementById('work-hours-display').addEventListener('keydown', functi
 });
 
 
-// 先月の月を自動的に設定する関数
-const setDefaultMonth = () => {
-    const shiftMonthInput = document.getElementById('shift-month');
-    const today = new Date();
-    // 先月の日付を取得
-    const Month = new Date(today.getFullYear(), today.getMonth() - 1);
-    // 年と月をフォーマット YYYY-MM にして value に設定
-    const formattedMonth = Month.toISOString().slice(0, 7);
-    shiftMonthInput.value = formattedMonth;
-    currentMonth = formattedMonth;  // ここでグローバル変数にも値を保持
-};
 
 const init = async () => {
-    setDefaultMonth();
+    const shiftMonthInput = document.getElementById('shift-month');
+    currentMonth = setDefaultMonth(shiftMonthInput);
     initializeCalendar();
     renderShiftLegend();
     pulldownMenuShift();
