@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = "/";
+                    window.location.href = "/employee";
                 } else {
                     alert("Login failed: " + data.message);
                 }

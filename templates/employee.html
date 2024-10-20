@@ -1,0 +1,59 @@
+<!-- templates/employee.html -->
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6">ようこそ {{ username }}</h1>
+
+        <div class="container">
+            <div id="calendar-container">
+                <form id="shift-form">
+
+                    <div>
+                        <span id="username">【{{ username }}】</span>
+                        <span id="full_name">{{ full_name }}</span>
+                    </div>
+                    <div>
+
+                        ◽️<span id="work-hours-display" contenteditable="true">{{ work_hours }} </span>時間/日
+                        <span>◽️連勤: {{ max_consecutive_days }} 日</span>
+                        <span>◽️{{ max_days_per_week }} 日/週</span>
+                    </div>
+
+
+
+                    <table id="calendar"></table>
+                    <select id="shift-select">
+                    </select>
+                    <button type="submit">送信</button>
+                    <button id="logout-button">ログアウト</button>
+                    <div id="current-shift-info"></div>
+                    <div id="tooltip"
+                        style="position:absolute; display:none; background-color:white; border:1px solid black; padding:5px;">
+                    </div>
+
+                </form>
+            </div>
+
+            <div id="shift-info">
+                <div>シフト</div>
+                <ul id="shift-legend"></ul>
+            </div>
+        </div>
+
+
+        <p>こちらはログイン後のページです。</p>
+    </div>
+
+
+</body>
+
+</html>

@@ -4,9 +4,9 @@ from flask import (
     request,
     session,
     jsonify,
-    render_template,
     redirect,
     url_for,
+    render_template,
 )
 from models import Employee
 
@@ -22,28 +22,30 @@ def load_users():
     return users
 
 
+@auth.route("/")
+def home():
+    return redirect(url_for("auth.login"))
+
+
 # ログイン画面を表示するルート
-@auth.route("/login", methods=["GET"])
+@auth.route("/login", methods=["POST", "GET"])
 def login():
+    if request.method == "POST":
+        data = request.json
+        username = data.get("username")
+        password = data.get("password")
+
+        users = load_users()
+        if username in users and users[username] == password:
+            session["username"] = username  # セッションにユーザー情報を保存
+            return jsonify({"success": True})
+        else:
+            return (
+                jsonify({"success": False, "message": "Invalid username or password"}),
+                401,
+            )
+    # GETリクエストの場合はログインページを返す
     return render_template("login.html")
-
-
-# ログイン処理
-@auth.route("/login", methods=["POST"])
-def login_post():
-    data = request.json
-    username = data.get("username")
-    password = data.get("password")
-
-    users = load_users()
-    if username in users and users[username] == password:
-        session["username"] = username  # セッションにユーザー情報を保存
-        return jsonify({"success": True})
-    else:
-        return (
-            jsonify({"success": False, "message": "Invalid username or password"}),
-            401,
-        )
 
 
 # ログアウト処理
