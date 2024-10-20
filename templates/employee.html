@@ -35,6 +35,8 @@
                     </select>
                     <button type="submit">送信</button>
                     <button id="logout-button">ログアウト</button>
+
+
                     <div id="current-shift-info"></div>
                     <div id="tooltip"
                         style="position:absolute; display:none; background-color:white; border:1px solid black; padding:5px;">
@@ -47,12 +49,16 @@
                 <div>シフト</div>
                 <ul id="shift-legend"></ul>
             </div>
+
+            <input type="month" id="shift-month" name="shift_month" required>
         </div>
 
 
-        <p>こちらはログイン後のページです。</p>
+
     </div>
 
+    <script src="../static/js/main.js" type="module"></script>
+    <script src="../static/js/calendar.js" type="module"></script>
 
 </body>
 

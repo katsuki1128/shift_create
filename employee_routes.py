@@ -1,7 +1,7 @@
 # employee_routes.py
 
-from flask import Blueprint, render_template, session, redirect, url_for
-from models import Employee
+from flask import Blueprint, render_template, session, redirect, url_for, jsonify
+from models import Employee, EmployeeShiftRequest
 
 employee_bp = Blueprint("employee", __name__)
 
@@ -22,25 +22,43 @@ def employee():
     # ログインユーザーの従業員情報を取得
     employee = Employee.query.filter_by(username=username).first()
 
-    # 従業員情報が存在する場合、フルネームや勤務時間などを取得
-    if employee:
-        full_name = employee.full_name
-        max_consecutive_days = employee.max_consecutive_days
-        max_days_per_week = employee.max_days_per_week
-    else:
-        full_name = "名前なし"  # エラーハンドリングとして空の値を設定
-        max_consecutive_days = None
-        max_days_per_week = None
-
-    # 他の従業員リストもテンプレートに渡す
-    employees = Employee.query.all()
-
     # テンプレートに渡すデータを準備
     return render_template(
         "employee.html",
         username=username,
-        full_name=full_name,
-        max_consecutive_days=max_consecutive_days,
-        max_days_per_week=max_days_per_week,
-        employees=employees,
+        full_name=employee.full_name,
+        max_consecutive_days=employee.max_consecutive_days,
+        max_days_per_week=employee.max_days_per_week,
+        employees=Employee.query.all(),
     )
+
+
+@employee_bp.route("/get_login_employee_shifts")
+def get_user_shifts():
+    # セッションからユーザー名を取得
+    username = session.get("username")
+
+    # ユーザーがログインしていない場合はエラーを返す
+    if not username:
+        return jsonify({"error": "User not logged in"}), 401
+
+    # ログインユーザーのシフトデータを取得
+    employee = Employee.query.filter_by(username=username).first()
+    if not employee:
+        return jsonify({"error": "User not found"}), 404
+
+    # ユーザーのシフトリクエストを取得
+    shift_requests = EmployeeShiftRequest.query.filter_by(
+        employee_id=employee.employee_id
+    ).all()
+
+    # シフトデータを辞書形式に変換
+    login_employee_shifts = {}
+    for request in shift_requests:
+        login_employee_shifts[str(request.date)] = {
+            "shift_id": request.shift_id,
+            "start_time": request.start_datetime.strftime("%H:%M"),
+            "end_time": request.end_datetime.strftime("%H:%M"),
+        }
+
+    return jsonify(login_employee_shifts)
