@@ -5,9 +5,11 @@ import { setDefaultMonth, getCurrentMonth } from './utility.js';
 // export let currentMonth = '';  // 現在選択されている「月」を保持する変数
 export let currentMonth = getCurrentMonth();  // 初期値を現在の年月（YYYY-MM形式）で設定
 // 月選択のイベントリスナーを設定
+
 const monthPicker = document.getElementById("shift-month");
 monthPicker.addEventListener("change", (event) => {
     currentMonth = event.target.value;  // 選択された月を currentMonth に反映
+    console.log(currentMonth)
     initializeCalendar();  // 月が変更されたらカレンダーを生成
 });
 

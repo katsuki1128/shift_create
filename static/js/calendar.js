@@ -62,7 +62,6 @@ const bindShiftsToCalendar = (calendar, userShifts) => {
                     cell.shiftInfo = `${shiftDetails.shift_id}`;
                     const shiftId = shiftDetails.shift_id;
                     cell.class = `shift-color-${shiftId}`;
-                    console.log(cell)
                 }
             }
         });
@@ -101,6 +100,9 @@ const renderCalendar = (employee_calendar, calendar) => {
                         shiftInfo.classList.add(cell.class);  // `shift-color-` クラスを追加
                     }
                     shiftInfo.style.fontSize = "10px"; // ⚪️をさらに小さく表示
+                    // クリックイベントを別関数に切り分け
+                    cellElement.addEventListener("click", () => showShiftDetails(cell.dateStr, userShifts));
+
                     cellElement.appendChild(shiftInfo);
                 }
             }
@@ -125,40 +127,42 @@ const generateCalendar = (employee_calendar, userShifts, currentMonth) => {
     renderCalendar(employee_calendar, calendarWithShifts);
 };
 
+// シフト情報を表示する関数
+const showShiftDetails = (dateStr, userShifts) => {
+    // const shiftDetails = userShifts.get(dateStr);  // dateStrからシフト情報を取得
+    // console.log(dateStr, shiftDetails)
 
-// const generateCalendar = (employee_calendar, userShifts, selectedDates, removedDates, date) => {
-//     while (employee_calendar.firstChild) {
-//         employee_calendar.removeChild(employee_calendar.firstChild);
-//     }
+    const shiftDetails = Array.from(userShifts.values()).find(shift => shift.date === dateStr);
 
-//     generateHeaderRow(employee_calendar);
+    if (shiftDetails) {
+        console.log("Shift Details:", shiftDetails);  // shiftDetailsをコンソールに表示
+        displayShiftDetails(shiftDetails);
+    } else {
+        console.log("No shift details for this day.");
+    }
+};
 
-//     // グローバル関数から年、月、月の日数を取得
-//     const { year, month, daysInMonth, firstDayIndex, totalCells } = getCalendarInfoFromCurrentMonth(currentMonth);
+// シフト詳細を表示するための要素を取得
+const shiftDetailsContainer = document.getElementById('shift-details');
 
-//     let currentDay = 1;
+// シフト情報を表示する関数
+const displayShiftDetails = (shiftDetails) => {
+    // 以前のシフト情報をクリア
+    shiftDetailsContainer.innerHTML = '';
 
-//     for (let i = 0; i < totalCells; i++) {
-//         if (i % 7 === 0) {
-//             var row = document.createElement("tr");
-//             calendar.appendChild(row);
-//         }
-//         // 日付セルの生成
-//         const cell = document.createElement("td");
+    // シフト詳細を新しく作成
+    const details = `
+        <p><strong>Date:</strong> ${shiftDetails.date}</p>
+        <p><strong>Employee ID:</strong> ${shiftDetails.employee_id}</p>
+        <p><strong>Start Time:</strong> ${shiftDetails.start_time}</p>
+        <p><strong>End Time:</strong> ${shiftDetails.end_time}</p>
+        <p><strong>Work Hours:</strong> ${shiftDetails.work_hours}</p>
+    `;
 
-//         // Tailwindでテキストサイズを大きくする
-//         cell.classList.add("text-xl");
+    // 新しいシフト情報を追加
+    shiftDetailsContainer.innerHTML = details;
+};
 
-//         if (i >= firstDayIndex - 1 && currentDay <= daysInMonth) {
-//             const cellDay = currentDay;
-//             const dateStr = formatDateString(year, month, cellDay);
-//             cell.textContent = currentDay;
-//             currentDay++;
-//         }
-
-//         row.appendChild(cell);
-//     }
-// };
 // 時間をクリックして編集し、エンターキーを押すと userShifts が更新される
 const updateShiftTime = async (dateStr, timeType, newTime) => {
     if (userShifts.has(dateStr)) {
