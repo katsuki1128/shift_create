@@ -1,5 +1,5 @@
 // static/js/main.js
-import { generateCalendar, generateShiftCalendar } from './calendar.js';
+import { generateCalendar } from './calendar.js';
 import { setDefaultMonth, getCurrentMonth } from './utility.js';
 
 // export let currentMonth = '';  // 現在選択されている「月」を保持する変数
@@ -45,50 +45,6 @@ const initializeCalendar = async () => {
 };
 
 
-// シフトレジェンドを表示する関数
-const renderShiftLegend = () => {
-    const shiftLegend = document.getElementById("shift-legend");
-    shiftLegend.innerHTML = '';  // 既存の内容をクリア
-
-    // const senjuShiftTypes = getSenjuShiftTypes();
-    // console.log(senjuShiftTypes);
-
-    senjuShiftTypes.forEach(([shiftType, { start_time, end_time, shift_id, senjyu_name, shift_name }]) => {
-        const legendItem = document.createElement("li");
-        legendItem.classList.add("shift-legend-item");
-
-        const colorBox = document.createElement("div");
-        colorBox.classList.add("shift-legend-color");
-        colorBox.classList.add(`shift${shift_id}`);  // shift_idに基づくクラスを追加
-        colorBox.style.border = "1px solid black";  // 黒枠を追加
-
-        const labelText = document.createElement("span");
-        if (shiftType === "休") {
-            labelText.textContent = "休み";
-        } else {
-            labelText.textContent = `${shift_name} (${start_time}-${end_time})`;  // シフト名と時間を表示
-        }
-
-        legendItem.appendChild(colorBox);
-        legendItem.appendChild(labelText);
-        shiftLegend.appendChild(legendItem);
-    });
-};
-
-// プルダウンメニューにシフト名を追加する関数
-const pulldownMenuShift = () => {
-    const shiftSelect = document.getElementById("shift-select");
-    shiftSelect.innerHTML = '';  // プルダウンメニューの既存の内容をクリア
-
-    // const senjuShiftTypes = getSenjuShiftTypes();
-
-    senjuShiftTypes.forEach(([shiftType, { shift_name }]) => {
-        const option = document.createElement("option");
-        option.value = shiftType;
-        option.textContent = shift_name;
-        shiftSelect.appendChild(option);
-    });
-};
 
 document.getElementById("shift-form").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -119,55 +75,11 @@ document.getElementById("shift-form").addEventListener("submit", async (event) =
 });
 
 
-// プルダウンメニューの変更イベントをリッスンする
-document.getElementById("shift-select").addEventListener("change", () => {
-    const selectedShift = document.getElementById("shift-select").value;
-
-    // 選択されたシフトの詳細情報を取得
-    const shiftDetails = shiftTypes[selectedShift];
-    // console.log(shiftDetails)
-
-    const today = new Date();
-    let year = today.getFullYear();
-    let month = today.getMonth() + 1;  // 次の月を取得するために +1
-    // console.log("month:", month);
-
-    if (month > 11) {
-        month = 0;  // 12月を超えたら1月に戻す
-        year += 1;  // 年を+1する
-    }
-    const daysInMonth = new Date(year, month + 1, 0).getDate();  // 次の月の日数を取得
-    // console.log("next month:", month, "daysInMonth:", daysInMonth);
-
-    userShifts.clear();
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-
-        const correctMonth = date.getMonth() + 1; // 月を1から12に修正
-        const dateStr = `${year}-${String(correctMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        // console.log(dateStr)
-        // 全ての日付に選択されたシフトの詳細情報を設定
-        userShifts.set(dateStr, {
-            shift_name: selectedShift,
-            start_time: shiftDetails.start_time,
-            end_time: shiftDetails.end_time,
-            shift_id: shiftDetails.shift_id  // shift_id を追加
-        });
-    }
-
-    // console.log("userShifts", Array.from(userShifts.entries()));
-    console.log("userShifts", userShifts);
-    generateCalendar(calendar, userShifts, selectedDates, removedDates, new Date(year, month - 1));
-
-});
 
 const init = async () => {
     // デフォルトの日付をYYYY-MM形式で設定・呼び込み
     currentMonth = setDefaultMonth(monthPicker);
     initializeCalendar();
-    renderShiftLegend();
-    pulldownMenuShift();
 };
 
 document.addEventListener("DOMContentLoaded", init);
