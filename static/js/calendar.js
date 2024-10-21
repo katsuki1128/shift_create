@@ -153,5 +153,66 @@ const showShiftDetails = (dateStr, userShifts) => {
         console.log("No shift details for this day.");
     }
 };
+// shift-contentをクリックした時にモーダルを表示する
+document.querySelector('.shift-content').addEventListener('click', function () {
+    const startTimeElem = this.querySelector('.start-time');
+    const endTimeElem = this.querySelector('.end-time');
+
+    // モーダルを表示する
+    const modal = document.getElementById('modal');
+    modal.style.display = 'block';
+
+    // モーダルに現在の時間をセット
+    document.getElementById('start-time').value = startTimeElem.textContent;
+    document.getElementById('end-time').value = endTimeElem.textContent;
+
+    // 保存ボタンがクリックされたとき
+    document.getElementById('save-button').addEventListener('click', () => {
+        const newStartTime = document.getElementById('start-time').value;
+        const newEndTime = document.getElementById('end-time').value;
+
+        // サーバーにAJAXでリクエストを送る
+        updateShiftTimes(newStartTime, newEndTime, startTimeElem, endTimeElem);
+
+        // モーダルを閉じる
+        modal.style.display = 'none';
+    });
+});
+
+// AJAXでサーバーにリクエストを送信
+function updateShiftTimes(newStartTime, newEndTime, startTimeElem, endTimeElem) {
+    const shiftDate = startTimeElem.closest('.shift-time').dataset.date;
+
+    fetch('/update_shift_times', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            date: shiftDate,
+            start_time: newStartTime,
+            end_time: newEndTime
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 時間を更新
+                startTimeElem.textContent = newStartTime;
+                endTimeElem.textContent = newEndTime;
+                console.log("シフト時間が更新されました。");
+            } else {
+                console.error("更新エラー:", data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// モーダルを閉じる
+document.querySelector('.close').addEventListener('click', () => {
+    document.getElementById('modal').style.display = 'none';
+});
 
 export { generateCalendar };

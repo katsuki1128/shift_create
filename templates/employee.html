@@ -44,6 +44,18 @@
                             </div>
                             <div class="shift-description"></div>
                         </div>
+                        <!-- モーダルダイアログボックス -->
+                        <div id="modal" class="modal">
+                            <div class="modal-content">
+                                <span class="close">&times;</span>
+                                <h2>シフト時間の変更</h2>
+                                <label for="start-time">開始時間:</label>
+                                <input type="time" id="start-time" name="start-time">
+                                <label for="end-time">終了時間:</label>
+                                <input type="time" id="end-time" name="end-time">
+                                <button id="save-button">保存</button>
+                            </div>
+                        </div>
                     </div>
                     <button id="logout-button">ログアウト</button>
 
