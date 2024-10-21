@@ -2,33 +2,40 @@
 import { generateCalendar, generateShiftCalendar } from './calendar.js';
 import { setDefaultMonth, getCurrentMonth } from './utility.js';
 
+// export let currentMonth = '';  // 現在選択されている「月」を保持する変数
+export let currentMonth = getCurrentMonth();  // 初期値を現在の年月（YYYY-MM形式）で設定
+// 月選択のイベントリスナーを設定
+const monthPicker = document.getElementById("shift-month");
+monthPicker.addEventListener("change", (event) => {
+    currentMonth = event.target.value;  // 選択された月を currentMonth に反映
+    initializeCalendar();  // 月が変更されたらカレンダーを生成
+});
 
-export let currentMonth = '';  // 現在選択されている「月」を保持する変数
 
 export let senjuShiftTypes = []; // グローバル変数として宣言
 
 const date = new Date();
-const calendar = document.getElementById("calendar");
+const employee_calendar = document.getElementById("calendar");
 const selectedDates = new Set();
 const removedDates = new Set();
 export const userShifts = new Map();
+
 
 
 // 指定されたURLからシフトデータを取得し、カレンダーを生成する非同期処理を行う
 const initializeCalendar = async () => {
     try {
         const response = await fetch(`/get_login_employee_shifts?currentMonth=${currentMonth}`);
-
-        // レスポンスからシフトデータを取得
         const shifts = await response.json();
-
         userShifts.clear();
         Object.entries(shifts).forEach(([date, shiftDetails]) => {
             userShifts.set(date, shiftDetails);
         });
         console.log("userShifts", userShifts)
 
-        generateCalendar(calendar, userShifts, selectedDates, removedDates, date);
+        // generateCalendar(employee_calendar, userShifts, selectedDates, removedDates, date);
+        // カレンダーを生成
+        generateCalendar(employee_calendar, userShifts, currentMonth);
 
     } catch (error) {
         console.error("Error:", error);
@@ -153,47 +160,9 @@ document.getElementById("shift-select").addEventListener("change", () => {
 
 });
 
-
-
-document.getElementById('work-hours-display').addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        var newWorkHours = this.textContent.replace(/[^\d]/g, ''); // 数字以外を削除
-        var display = this;
-
-        // データベースを更新するためにAJAXリクエストを送信
-        fetch('/update_work_hours', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token() }}'  // Flask-WTFのCSRFトークンを使っている場合
-            },
-            body: JSON.stringify({ work_hours: newWorkHours })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    display.textContent = `◽️${newWorkHours} 時間/日`;
-                } else {
-                    alert('Failed to update work hours');
-                    display.textContent = `◽️{{ work_hours }} 時間/日`; // 元の値に戻す
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to update work hours');
-                display.textContent = `◽️{{ work_hours }} 時間/日`; // 元の値に戻す
-            });
-
-        this.blur(); // 編集を終了
-    }
-});
-
-
-
 const init = async () => {
-    const shiftMonthInput = document.getElementById('shift-month');
-    currentMonth = setDefaultMonth(shiftMonthInput);
+    // デフォルトの日付をYYYY-MM形式で設定・呼び込み
+    currentMonth = setDefaultMonth(monthPicker);
     initializeCalendar();
     renderShiftLegend();
     pulldownMenuShift();

@@ -5,6 +5,7 @@ from config import Config
 from auth import auth
 from employee_routes import employee_bp
 
+
 app = Flask(__name__)
 
 # アプリの設定をConfigクラスから読み込む

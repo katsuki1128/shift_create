@@ -18,3 +18,37 @@ td {
 th {
     background-color: #f2f2f2;
 }
+
+/* シフトIDごとの色設定 */
+.shift-color-1 { color: #FF0000; }  /* 赤 */
+.shift-color-2 { color: #FF4500; }
+.shift-color-3 { color: #FF6347; }
+.shift-color-4 { color: #FF7F50; }
+.shift-color-5 { color: #FFA500; }
+.shift-color-6 { color: #FFD700; }
+.shift-color-7 { color: #FFFF00; }
+.shift-color-8 { color: #ADFF2F; }
+.shift-color-9 { color: #32CD32; }
+.shift-color-10 { color: #00FF7F; }
+.shift-color-11 { color: #00FA9A; }
+.shift-color-12 { color: #20B2AA; }
+.shift-color-13 { color: #00CED1; }
+.shift-color-14 { color: #1E90FF; }
+.shift-color-15 { color: #4169E1; }
+.shift-color-16 { color: #6A5ACD; }
+.shift-color-17 { color: #7B68EE; }
+.shift-color-18 { color: #8A2BE2; }
+.shift-color-19 { color: #9400D3; }
+.shift-color-20 { color: #9932CC; }
+.shift-color-21 { color: #BA55D3; }
+.shift-color-22 { color: #DA70D6; }
+.shift-color-23 { color: #EE82EE; }
+.shift-color-24 { color: #FF00FF; }
+.shift-color-25 { color: #FF1493; }
+.shift-color-26 { color: #FF69B4; }
+.shift-color-27 { color: #FFB6C1; }
+.shift-color-28 { color: #FFC0CB; }
+.shift-color-29 { color: #FFDAB9; }
+.shift-color-30 { color: #FFFFFF; }  /* 青 */
+.shift-color-31 { color: #FFFFFF; }
+.shift-color-32 { color: #4169E1; }  /* 夜は青色 */

@@ -8,8 +8,8 @@ const formatDateString = (year, month, day) => {
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 };
 
-
-const generateHeaderRow = (calendar) => {
+// 曜日の行を生成する関数
+const generateHeaderRow = (employee_calendar) => {
     const headerRow = document.createElement("tr");
     const daysOfWeek = ["月", "火", "水", "木", "金", "土", "日"];
     daysOfWeek.forEach(day => {
@@ -18,194 +18,147 @@ const generateHeaderRow = (calendar) => {
         th.classList.add("text-xs");
         headerRow.appendChild(th);
     });
-    calendar.appendChild(headerRow);
+    employee_calendar.appendChild(headerRow);
 };
 
-const generateCalendar = (calendar, userShifts, selectedDates, removedDates, date) => {
-    while (calendar.firstChild) {
-        calendar.removeChild(calendar.firstChild);
-    }
-
-    generateHeaderRow(calendar);
-    console.log("currentMonth", currentMonth)
-
-    // グローバル関数から年、月、月の日数を取得
-    const { year, month, daysInMonth, firstDayIndex, totalCells } = getCalendarInfoFromCurrentMonth(currentMonth + 3);
-
+// ベースのカレンダーを生成する関数
+const generateBaseCalendar = (year, month, daysInMonth, firstDayIndex, totalCells) => {
+    const calendar = [];
     let currentDay = 1;
-
     for (let i = 0; i < totalCells; i++) {
+        // 新しい行を作成
         if (i % 7 === 0) {
-            var row = document.createElement("tr");
-            calendar.appendChild(row);
+            calendar.push([]);
         }
-        // 日付セルの生成
-        const cell = document.createElement("td");
-
-        // Tailwindでテキストサイズを大きくする
-        cell.classList.add("text-xl");  // テキストを大きくし、太字にする
+        const row = calendar[calendar.length - 1]; // 現在の行
 
         if (i >= firstDayIndex - 1 && currentDay <= daysInMonth) {
-            const cellDay = currentDay;
-            const dateStr = formatDateString(year, month, cellDay);
-            cell.textContent = currentDay;
+            row.push({
+                day: currentDay,
+                dateStr: formatDateString(year, month, currentDay),
+            });
+            currentDay++;
+        } else {
+            row.push({ day: null, dateStr: null }); // 空セル
+        }
+    }
 
-            // シフトの適用
-            if (userShifts.has(dateStr)) {
-                const shiftDetails = userShifts.get(dateStr);
-                cell.className = `shift${shiftDetails.shift_id}`; // シフトの種類に対応するクラスを追加
+    return calendar;
+};
 
-            } else {
+// シフト情報をカレンダーに紐付けて表示する関数
+const bindShiftsToCalendar = (calendar, userShifts) => {
+    calendar.forEach(row => {
+        row.forEach(cell => {
+            // `cell.dateStr` が存在する場合に処理を行う
+            if (cell.dateStr) {
+                // `userShifts` 内のシフトの `date` プロパティと `cell.dateStr` を比較する
+                const shiftDetails = Array.from(userShifts.values()).find(shift => {
+                    return shift.date === cell.dateStr;
+                });
+                if (shiftDetails) {
 
-                // console.error(`Error: No shift type found for date ${dateStr}`);
+                    // シフトが見つかった場合、シフトIDなどの情報を `cell` にバインド
+                    cell.shiftInfo = `${shiftDetails.shift_id}`;
+                    const shiftId = shiftDetails.shift_id;
+                    cell.class = `shift-color-${shiftId}`;
+                    console.log(cell)
+                }
+            }
+        });
+    });
+
+    return calendar;
+};
+
+// カレンダーをDOMに描画する関数
+const renderCalendar = (employee_calendar, calendar) => {
+    while (employee_calendar.firstChild) {
+        employee_calendar.removeChild(employee_calendar.firstChild);
+    }
+
+    // ヘッダーを生成
+    generateHeaderRow(employee_calendar);
+
+    // 各行とセルを描画
+    calendar.forEach(row => {
+        const rowElement = document.createElement("tr");
+        row.forEach(cell => {
+            const cellElement = document.createElement("td");
+            cellElement.classList.add("text-xl");
+
+            if (cell.day !== null) {
+                cellElement.textContent = cell.day;
+
+                // シフト情報があれば表示
+                if (cell.shiftInfo) {
+                    const shiftInfo = document.createElement("div");
+                    // shiftInfo.textContent = cell.shiftInfo;
+                    shiftInfo.innerHTML = "&#x25CF;"; // ⚪️ のUnicode
+
+                    // シフトIDに基づいてクラスを追加 (ここでシフトの色を指定)
+                    if (cell.class) {
+                        shiftInfo.classList.add(cell.class);  // `shift-color-` クラスを追加
+                    }
+                    shiftInfo.style.fontSize = "10px"; // ⚪️をさらに小さく表示
+                    cellElement.appendChild(shiftInfo);
+                }
             }
 
-            // shiftTypes オブジェクトのキーをリストとして取得
-            const shiftTypeKeys = senjuShiftTypes.map(([shiftType, _]) => shiftType);
-
-            let nextShiftIndex = 8; // 初期値を8に設定
-            let clickTimeout;
-
-            // セルのクリックイベント
-            cell.addEventListener("click", () => {
-                clearTimeout(clickTimeout); // 既存のタイマーをクリア
-                clickTimeout = setTimeout(() => {
-                    // シングルクリックの処理をここに書く
-                    if (userShifts.has(dateStr)) {
-                        const currentShift = userShifts.get(dateStr);
-                        console.log(nextShiftIndex)
-
-                        if (nextShiftIndex >= shiftTypeKeys.length) {
-                            nextShiftIndex = 0;
-                        }
-
-
-                        const nextShiftName = shiftTypeKeys[nextShiftIndex];
-                        const nextShiftDetails = shiftTypes[nextShiftName];
-                        userShifts.set(dateStr, {
-                            shift_name: nextShiftName,
-                            start_time: nextShiftDetails.start_time,
-                            end_time: nextShiftDetails.end_time,
-                            shift_id: nextShiftDetails.shift_id
-                        });
-                        cell.className = `shift${nextShiftDetails.shift_id}`;
-
-                        nextShiftIndex++; // インクリメントして次のクリックに備える
-
-
-                    } else {
-                        const firstShiftName = shiftTypeKeys[0];
-                        const firstShiftDetails = shiftTypes[firstShiftName];
-                        userShifts.set(dateStr, {
-                            shift_name: firstShiftName,
-                            start_time: firstShiftDetails.start_time,
-                            end_time: firstShiftDetails.end_time,
-                            shift_id: firstShiftDetails.shift_id
-                        });
-                        cell.className = `shift${firstShiftDetails.shift_id}`;
-                    }
-                    console.log("User Shifts:", Array.from(userShifts.entries()));
-                }, 200); // 300msの遅延後にシングルクリックを処理
-            });
-
-            let mouseoverDisabled = false;
-
-            cell.addEventListener("mouseover", (event) => {
-                if (mouseoverDisabled) return;
-
-                const currentShiftInfo = document.getElementById("current-shift-info");
-                if (userShifts.has(dateStr)) {
-                    const shiftDetails = userShifts.get(dateStr);
-                    // console.log(shiftDetails)
-                    let shiftInfo = `日付: ${dateStr}, `;
-
-                    if (shiftDetails.shift_name === "休") {
-                        shiftInfo += `休み<br>`;
-                    } else {
-                        shiftInfo += `開始: ${shiftDetails.start_time}, 終了: ${shiftDetails.end_time}, <br>`;
-                    }
-
-                    shiftInfo += `勤務時間: ${shiftDetails.work_hours} 時間/日, `;
-                    shiftInfo += `連勤: ${shiftDetails.max_consecutive_days} 日, `;
-                    shiftInfo += `${shiftDetails.max_days_per_week} 日/週`;
-
-                    currentShiftInfo.innerHTML = shiftInfo;
-                    currentShiftInfo.style.display = "block";
-                } else {
-                    currentShiftInfo.style.display = "none";
-                }
-            });
-
-            cell.addEventListener("mouseout", () => {
-                if (mouseoverDisabled) return;
-
-                const currentShiftInfo = document.getElementById("current-shift-info");
-                currentShiftInfo.style.display = "none";
-            });
-
-
-
-            cell.addEventListener("dblclick", () => {
-                clearTimeout(clickTimeout); // シングルクリックのタイマーをクリア
-                mouseoverDisabled = true; // マウスオーバーを無効にする
-                const currentShiftInfo = document.getElementById("current-shift-info");
-                if (userShifts.has(dateStr)) {
-
-                    const shiftDetails = userShifts.get(dateStr);
-                    // console.log("Shift Details before update:", shiftDetails); // デバッグ用ログ
-
-                    if (shiftDetails.shift_name === "休") {
-                        currentShiftInfo.innerHTML = `日付: ${dateStr}, シフト: 休み`;
-                    } else {
-                        currentShiftInfo.innerHTML = `日付: ${dateStr}, 開始: <span id="start-time" contenteditable="true">${shiftDetails.start_time}</span>, 終了: <span id="end-time" contenteditable="true">${shiftDetails.end_time}</span><br>
-                                          勤務時間: <span id="work-hours" contenteditable="true">${shiftDetails.work_hours}</span> 時間/日, 連勤: <span id="max-consecutive-days" contenteditable="true">${shiftDetails.max_consecutive_days}</span> 日, <span id="max-days-per-week" contenteditable="true">${shiftDetails.max_days_per_week}</span> 日/週`;
-
-                        const startTimeElem = document.getElementById("start-time");
-                        const endTimeElem = document.getElementById("end-time");
-                        const workHoursElem = document.getElementById("work-hours");
-                        const maxConsecutiveDaysElem = document.getElementById("max-consecutive-days");
-                        const maxDaysPerWeekElem = document.getElementById("max-days-per-week");
-
-                        const enableMouseover = () => {
-                            mouseoverDisabled = false; // マウスオーバーを再度有効にする
-                            startTimeElem.removeEventListener("keydown", handleKeydown);
-                            endTimeElem.removeEventListener("keydown", handleKeydown);
-                            workHoursElem.removeEventListener("keydown", handleKeydown);
-                            maxConsecutiveDaysElem.removeEventListener("keydown", handleKeydown);
-                            maxDaysPerWeekElem.removeEventListener("keydown", handleKeydown);
-                        };
-
-                        const handleKeydown = (event) => {
-                            if (event.key === "Enter") {
-                                event.preventDefault();
-                                const targetId = event.target.id;
-                                const newValue = event.target.textContent;
-                                if (targetId === "start-time" || targetId === "end-time") {
-                                    updateShiftTime(dateStr, targetId.replace("-", "_"), newValue);
-                                } else {
-                                    updateShiftDetails(dateStr, targetId.replace("-", "_"), newValue);
-                                }
-                                enableMouseover();
-                            }
-                        };
-
-                        startTimeElem.addEventListener("keydown", handleKeydown);
-                        endTimeElem.addEventListener("keydown", handleKeydown);
-                        workHoursElem.addEventListener("keydown", handleKeydown);
-                        maxConsecutiveDaysElem.addEventListener("keydown", handleKeydown);
-                        maxDaysPerWeekElem.addEventListener("keydown", handleKeydown);
-                    }
-                } else {
-                    currentShiftInfo.textContent = "シフト情報がありません";
-                }
-            });
-
-            currentDay++;
-        }
-
-        row.appendChild(cell);
-    }
+            rowElement.appendChild(cellElement);
+        });
+        employee_calendar.appendChild(rowElement);
+    });
 };
+
+const generateCalendar = (employee_calendar, userShifts, currentMonth) => {
+    // 現在の月の情報を取得
+    const { year, month, daysInMonth, firstDayIndex, totalCells } = getCalendarInfoFromCurrentMonth(currentMonth);
+
+    // ベースのカレンダーを生成
+    let baseCalendar = generateBaseCalendar(year, month, daysInMonth, firstDayIndex, totalCells);
+
+    // シフト情報をカレンダーに紐付ける
+    const calendarWithShifts = bindShiftsToCalendar(baseCalendar, userShifts);
+
+    // カレンダーを描画
+    renderCalendar(employee_calendar, calendarWithShifts);
+};
+
+
+// const generateCalendar = (employee_calendar, userShifts, selectedDates, removedDates, date) => {
+//     while (employee_calendar.firstChild) {
+//         employee_calendar.removeChild(employee_calendar.firstChild);
+//     }
+
+//     generateHeaderRow(employee_calendar);
+
+//     // グローバル関数から年、月、月の日数を取得
+//     const { year, month, daysInMonth, firstDayIndex, totalCells } = getCalendarInfoFromCurrentMonth(currentMonth);
+
+//     let currentDay = 1;
+
+//     for (let i = 0; i < totalCells; i++) {
+//         if (i % 7 === 0) {
+//             var row = document.createElement("tr");
+//             calendar.appendChild(row);
+//         }
+//         // 日付セルの生成
+//         const cell = document.createElement("td");
+
+//         // Tailwindでテキストサイズを大きくする
+//         cell.classList.add("text-xl");
+
+//         if (i >= firstDayIndex - 1 && currentDay <= daysInMonth) {
+//             const cellDay = currentDay;
+//             const dateStr = formatDateString(year, month, cellDay);
+//             cell.textContent = currentDay;
+//             currentDay++;
+//         }
+
+//         row.appendChild(cell);
+//     }
+// };
 // 時間をクリックして編集し、エンターキーを押すと userShifts が更新される
 const updateShiftTime = async (dateStr, timeType, newTime) => {
     if (userShifts.has(dateStr)) {
