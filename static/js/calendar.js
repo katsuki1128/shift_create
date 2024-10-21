@@ -1,6 +1,4 @@
 // static/js/calendar.js
-
-// import { shiftTypes } from './shifts.js';
 import { getCalendarInfoFromCurrentMonth } from './utility.js';
 import { currentMonth, userShifts, senjuShiftTypes } from './main.js';
 
@@ -99,7 +97,7 @@ const renderCalendar = (employee_calendar, calendar) => {
                     if (cell.class) {
                         shiftInfo.classList.add(cell.class);  // `shift-color-` クラスを追加
                     }
-                    shiftInfo.style.fontSize = "10px"; // ⚪️をさらに小さく表示
+                    shiftInfo.style.fontSize = "8px"; // ⚪️をさらに小さく表示
                     // クリックイベントを別関数に切り分け
                     cellElement.addEventListener("click", () => showShiftDetails(cell.dateStr, userShifts));
 
@@ -143,21 +141,49 @@ const showShiftDetails = (dateStr, userShifts) => {
         document.querySelector('.start-time').textContent = shiftDetails.start_time;
         document.querySelector('.end-time').textContent = shiftDetails.end_time;
 
+        // `shift-content` に `dateStr` を保存
+        document.querySelector('.shift-content').dataset.dateStr = dateStr;
+
         // シフトの説明や勤務時間を設定 (必要に応じて詳細を追加)
         document.querySelector('.shift-description').innerHTML = `
             ${shiftDetails.work_hours}時間勤務
         `;
+        // 編集ボタンを表示
+        document.querySelector(".edit-button").style.display = "inline-block";
         console.log("Shift Details:", shiftDetails);  // shiftDetailsをコンソールに表示
 
     } else {
         console.log("No shift details for this day.");
     }
 };
-// shift-contentをクリックした時にモーダルを表示する
-document.querySelector('.shift-content').addEventListener('click', function () {
-    const startTimeElem = this.querySelector('.start-time');
-    const endTimeElem = this.querySelector('.end-time');
 
+document.addEventListener("DOMContentLoaded", () => {
+    // shift-contentをクリックした時にモーダルを表示する
+    document.querySelector('.shift-content').addEventListener('click', function () {
+        const startTimeElem = this.querySelector('.start-time');
+        const endTimeElem = this.querySelector('.end-time');
+
+        // クリックした時にモーダルを開く
+        openShiftEditModal(startTimeElem, endTimeElem);
+    });
+
+    // 「変更」ボタンをクリックした時にもモーダルを表示する
+    document.querySelector('.edit-button').addEventListener('click', function () {
+        const startTimeElem = document.querySelector('.shift-content .start-time');
+        const endTimeElem = document.querySelector('.shift-content .end-time');
+
+        // 変更ボタンをクリックした時にもモーダルを開く
+        openShiftEditModal(startTimeElem, endTimeElem);
+    });
+
+    // モーダルを閉じる
+    document.querySelector('.close').addEventListener('click', () => {
+        document.getElementById('modal').style.display = 'none';
+    });
+});
+
+// shift-contentまたはedit-buttonをクリックした時にモーダルを表示する関数
+const openShiftEditModal = (startTimeElem, endTimeElem) => {
     // モーダルを表示する
     const modal = document.getElementById('modal');
     modal.style.display = 'block';
@@ -166,7 +192,7 @@ document.querySelector('.shift-content').addEventListener('click', function () {
     document.getElementById('start-time').value = startTimeElem.textContent;
     document.getElementById('end-time').value = endTimeElem.textContent;
 
-    // 保存ボタンがクリックされたとき
+    // 保存ボタンがクリックされたときの処理
     document.getElementById('save-button').addEventListener('click', () => {
         const newStartTime = document.getElementById('start-time').value;
         const newEndTime = document.getElementById('end-time').value;
@@ -177,11 +203,29 @@ document.querySelector('.shift-content').addEventListener('click', function () {
         // モーダルを閉じる
         modal.style.display = 'none';
     });
+};
+
+// shift-contentをクリックした時にモーダルを表示する
+document.querySelector('.shift-content').addEventListener('click', function () {
+    const startTimeElem = this.querySelector('.start-time');
+    const endTimeElem = this.querySelector('.end-time');
+
+    // クリックした時にモーダルを開く
+    openShiftEditModal(startTimeElem, endTimeElem);
+});
+
+// 「変更」ボタンをクリックした時にもモーダルを表示する
+document.querySelector('.edit-button').addEventListener('click', function () {
+    const startTimeElem = document.querySelector('.shift-content .start-time');
+    const endTimeElem = document.querySelector('.shift-content .end-time');
+
+    // 変更ボタンをクリックした時にもモーダルを開く
+    openShiftEditModal(startTimeElem, endTimeElem);
 });
 
 // AJAXでサーバーにリクエストを送信
 function updateShiftTimes(newStartTime, newEndTime, startTimeElem, endTimeElem) {
-    const shiftDate = startTimeElem.closest('.shift-time').dataset.date;
+    const shiftDate = document.querySelector('.shift-content').dataset.dateStr;  // `dateStr`を取得
 
     fetch('/update_shift_times', {
         method: 'POST',

@@ -46,33 +46,33 @@ const initializeCalendar = async () => {
 
 
 
-document.getElementById("shift-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
+// document.getElementById("shift-form").addEventListener("submit", async (event) => {
+//     event.preventDefault();
 
-    const dates = {};
-    userShifts.forEach((shiftDetails, date) => {
-        dates[date] = {
-            shift_id: shiftDetails.shift_id,
-            start_time: shiftDetails.start_time,
-            end_time: shiftDetails.end_time
-        };
-    });
+//     const dates = {};
+//     userShifts.forEach((shiftDetails, date) => {
+//         dates[date] = {
+//             shift_id: shiftDetails.shift_id,
+//             start_time: shiftDetails.start_time,
+//             end_time: shiftDetails.end_time
+//         };
+//     });
 
-    try {
-        const response = await fetch("/submit", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ dates: dates })
-        });
-        const data = await response.json();
+//     try {
+//         const response = await fetch("/submit", {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({ dates: dates })
+//         });
+//         const data = await response.json();
 
-        generateCalendar(calendar, userShifts, selectedDates, removedDates, date);
-    } catch (error) {
-        console.error("Error:", error);
-    }
-});
+//         generateCalendar(calendar, userShifts, selectedDates, removedDates, date);
+//     } catch (error) {
+//         console.error("Error:", error);
+//     }
+// });
 
 
 

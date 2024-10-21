@@ -12,6 +12,7 @@ from flask import (
 
 from models import db, Employee, EmployeeShiftRequest
 from sqlalchemy import extract
+from datetime import datetime
 
 
 employee_bp = Blueprint("employee", __name__)
@@ -82,3 +83,35 @@ def get_user_shifts():
 
     # シフトデータをJSON形式で返す
     return jsonify(login_employee_shifts)
+
+
+@employee_bp.route("/update_shift_times", methods=["POST"])
+def update_shift_times():
+    data = request.get_json()
+
+    # リクエストから日付と時間を取得
+    shift_date = data.get("date")
+    new_start_time = data.get("start_time")
+    new_end_time = data.get("end_time")
+    print("test", new_start_time, new_end_time, shift_date)
+    input()
+
+    # 日付のフォーマットを合わせる
+    shift_date = datetime.strptime(shift_date, "%Y-%m-%d").date()
+
+    # データベースからシフトを取得
+    shift = EmployeeShiftRequest.query.filter_by(date=shift_date).first()
+
+    if shift:
+        # シフトの開始時間と終了時間を更新
+        shift.start_datetime = datetime.combine(
+            shift.date, datetime.strptime(new_start_time, "%H:%M").time()
+        )
+        shift.end_datetime = datetime.combine(
+            shift.date, datetime.strptime(new_end_time, "%H:%M").time()
+        )
+        db.session.commit()
+
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False, "error": "Shift not found"}), 404
