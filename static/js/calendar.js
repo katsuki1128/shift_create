@@ -135,32 +135,26 @@ const showShiftDetails = (dateStr, userShifts) => {
     const shiftDetails = Array.from(userShifts.values()).find(shift => shift.date === dateStr);
 
     if (shiftDetails) {
+        // 日付をフォーマット (例: 2024年10月6日 (火))
+        const date = new Date(shiftDetails.date);
+        const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 (${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
+
+        // シフト詳細をDOMに挿入
+        document.querySelector('.shift-date').textContent = formattedDate;
+
+        // 開始時間と終了時間を設定
+        document.querySelector('.start-time').textContent = shiftDetails.start_time;
+        document.querySelector('.end-time').textContent = shiftDetails.end_time;
+
+        // シフトの説明や勤務時間を設定 (必要に応じて詳細を追加)
+        document.querySelector('.shift-description').innerHTML = `
+            ${shiftDetails.work_hours}時間勤務
+        `;
         console.log("Shift Details:", shiftDetails);  // shiftDetailsをコンソールに表示
         displayShiftDetails(shiftDetails);
     } else {
         console.log("No shift details for this day.");
     }
-};
-
-// シフト詳細を表示するための要素を取得
-const shiftDetailsContainer = document.getElementById('shift-details');
-
-// シフト情報を表示する関数
-const displayShiftDetails = (shiftDetails) => {
-    // 以前のシフト情報をクリア
-    shiftDetailsContainer.innerHTML = '';
-
-    // シフト詳細を新しく作成
-    const details = `
-        <p><strong>Date:</strong> ${shiftDetails.date}</p>
-        <p><strong>Employee ID:</strong> ${shiftDetails.employee_id}</p>
-        <p><strong>Start Time:</strong> ${shiftDetails.start_time}</p>
-        <p><strong>End Time:</strong> ${shiftDetails.end_time}</p>
-        <p><strong>Work Hours:</strong> ${shiftDetails.work_hours}</p>
-    `;
-
-    // 新しいシフト情報を追加
-    shiftDetailsContainer.innerHTML = details;
 };
 
 // 時間をクリックして編集し、エンターキーを押すと userShifts が更新される

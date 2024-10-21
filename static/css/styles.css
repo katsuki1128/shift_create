@@ -52,3 +52,47 @@ th {
 .shift-color-30 { color: #FFFFFF; }  /* 青 */
 .shift-color-31 { color: #FFFFFF; }
 .shift-color-32 { color: #4169E1; }  /* 夜は青色 */
+
+.details-section {
+
+}
+
+.shift-date {
+    font-size: 16px;
+    color: #333;
+    padding: 8px;
+    background-color: #f8f8f8;
+}
+
+.shift-content {
+    padding: 8px;
+    margin-left: 10px;
+    display: flex;
+}
+
+.shift-time {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+    color: #999;
+}
+
+.shift-time span {
+    font-size: 14px;
+}
+
+.start-time {
+    color: #333;  /* 開始時間は濃い色 */
+}
+
+.end-time {
+    color: #ccc;  /* 終了時間は薄い色 */
+}
+
+.shift-description {
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+}

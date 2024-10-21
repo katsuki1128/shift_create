@@ -33,10 +33,18 @@
 
                     <table id="calendar"></table>
 
-                    <!-- シフトの詳細を表示するコンテナ -->
-                    <div id="shift-details" style="margin-top: 20px; padding: 10px; border: 1px solid #ddd;">
-                    </div>
 
+                    <!-- シフト詳細を表示するセクション -->
+                    <div id="shift-details" class="details-section">
+                        <div class="shift-date"></div>
+                        <div class="shift-content">
+                            <div class="shift-time">
+                                <span class="start-time"></span>
+                                <span class="end-time"></span>
+                            </div>
+                            <div class="shift-description"></div>
+                        </div>
+                    </div>
                     <select id="shift-select">
                     </select>
                     <button type="submit">送信</button>
@@ -50,13 +58,6 @@
 
                 </form>
             </div>
-
-            <div id="shift-info">
-                <div>シフト</div>
-                <ul id="shift-legend"></ul>
-            </div>
-
-
         </div>
 
 
